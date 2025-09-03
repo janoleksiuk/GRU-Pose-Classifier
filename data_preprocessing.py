@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 import pandas as pd
 from scipy.signal import savgol_filter
+from classes import CLASS_MAPPING
 
 """
 Example CLI usage:
@@ -83,16 +84,20 @@ def smooth_sequence(seq, method="sg", window_length=5, polyorder=2):
 def process_class(input_dir, output_path, class_name,
                   seq_len=30, step=10, augment=False, smooth="none"):
     """Processing for given class type"""
+    if class_name not in CLASS_MAPPING:
+        raise ValueError(f"Unknown class_name '{class_name}'. Must be one of {list(CLASS_MAPPING.keys())}")
+
+    label_int = CLASS_MAPPING[class_name]
+
     sequences = load_csv_files(input_dir)
     sequences, mean, std = normalize(sequences)
-
-    # filtracja (jeśli wybrano)
+    
     if smooth != "none":
         sequences = [smooth_sequence(seq, method=smooth) for seq in sequences]
 
     all_sequences, all_labels = [], []
     for seq in sequences:
-        seqs, labs = create_sequences(seq, seq_len=seq_len, step=step, label=class_name)
+        seqs, labs = create_sequences(seq, seq_len=seq_len, step=step, label=label_int)
         all_sequences.extend(seqs)
         all_labels.extend(labs)
 
@@ -101,17 +106,18 @@ def process_class(input_dir, output_path, class_name,
             all_sequences.extend(aug_seqs)
             all_labels.extend(labs)
 
-    X = np.array(all_sequences, dtype=np.float32)  # [num_samples, seq_len, num_features]
-    y = np.array(all_labels)
+    X = np.array(all_sequences, dtype=np.float32)
+    y = np.array(all_labels, dtype=np.int64)  
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     np.savez(output_path, X=X, y=y, mean=mean, std=std)
 
     print(f"[INFO] Saved {X.shape[0]} sequences to {output_path}")
+    print(f"[INFO] Label '{class_name}' encoded as {label_int}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Preprocessing CSV -> NPZ")
+    parser = argparse.ArgumentParser(description="Preprocessing CSV -> .npz")
     parser.add_argument("--input_dir", type=str, required=True,
                         help="CSV folder")
     parser.add_argument("--output_path", type=str, required=True,
