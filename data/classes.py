@@ -1,7 +1,22 @@
 # Classes encoding
 CLASS_MAPPING = {
-    "standing": 0,
-    "standing-single-hand": 1,
-    "sitting": 2,
-    "sitting-single-hand": 3
+    "bowing" : 0,
+    "cleaning" : 1,
+    "collecting" : 2,
+    "drinking" : 3,
+    "eating" : 4,
+    "looking" : 5,
+    "opening" : 6,
+    "passing" : 7,
+    "picking" : 8,
+    "placing" : 9,
+    "pushing" : 10,
+    "reading" : 11,
+    "sitting" : 12,
+    "standing" : 13,
+    "standing_up" : 14,
+    "talking" : 15,
+    "turning" : 16,
+    "turning_front" : 17,
+    "walking" : 18
 }
